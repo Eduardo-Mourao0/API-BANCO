@@ -23,6 +23,6 @@ router.post("/transfer", (req, res) => transferController.handle(req, res));
 
 router.get("/list", (req, res) => listUserController.handle(req, res));
 
-router.delete("/delete", (req, res) => deleteController.handle(req, res));
+router.delete("/delete/:accountNumber", (req, res) => deleteController.handle(req, res));
 
 export { router };

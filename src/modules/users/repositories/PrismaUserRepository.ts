@@ -57,4 +57,32 @@ export class PrismaUserRepository implements IUserRepository {
         });
     }
 
+    async findAccount(accountNumber: string){
+        return prisma.account.findUnique({ 
+            where: { accountNumber },
+            include: {
+                user: true
+            }
+        });
+    }
+
+    async deleteAccount(accountNumber: string){
+
+        const account = await prisma.account.findUnique({
+            where: { accountNumber },
+            include: { user: true }
+        });
+
+        await prisma.$transaction([
+            prisma.account.delete({
+            where: { accountNumber }
+            }),
+
+            prisma.user.delete({
+            where: { id: account!.user.id }
+            })
+        ]);
+
+    }
+
 }

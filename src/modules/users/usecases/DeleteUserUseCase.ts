@@ -1,18 +1,12 @@
-import { prisma } from "../../../prisma";
+import { IUserRepository } from "../repositories/IUserRepository";
 
-interface DeleteRequest{
-    accountNumber: string
-}
 
 export class DeleteUserUseCase{
-    async execute({accountNumber}: DeleteRequest){
-
-       const account = await prisma.account.findUnique({ 
-            where: { accountNumber },
-            include: {
-                user: true
-            }
-        });
+    constructor(private userRepository: IUserRepository){}
+    
+    async execute(accountNumber: string){
+        
+        const account = await this.userRepository.findAccount(accountNumber);
 
         if(!account){
             throw new Error('Conta não encontrada')
@@ -22,15 +16,7 @@ export class DeleteUserUseCase{
             throw new Error("Sua conta bancaria precisa estar com o balance ZERADO!")
         }
 
-        await prisma.$transaction([
-            prisma.account.delete({
-                where: {accountNumber}
-            }),
-
-            prisma.user.delete({
-                where: { id: account.user.id }
-            })
-        ]);
+        await this.userRepository.deleteAccount(accountNumber)
 
         return {
             message: 'Usuario e Conta DELETADOS com SUCESSO! ✅'

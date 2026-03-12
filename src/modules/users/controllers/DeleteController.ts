@@ -1,18 +1,19 @@
 import { type Request, type Response } from "express";
 import { DeleteUserUseCase } from "../usecases/DeleteUserUseCase";
+import { PrismaUserRepository } from "../repositories/PrismaUserRepository";
 
 export class DeleteController{
-    async handle(req: Request, res: Response){
+    async handle(req: Request<{ accountNumber: string }>, res: Response){
 
-        const {accountNumber} = req.body;
+        const {accountNumber} = req.params;
+
+        const userRepository = new PrismaUserRepository();
         
-        const deleteUser = new DeleteUserUseCase();
+        const deleteUser = new DeleteUserUseCase(userRepository);
 
         try{
 
-            const del = await deleteUser.execute({
-                accountNumber
-            });
+            const del = await deleteUser.execute(accountNumber);
 
             return res.status(200).json(del)
         

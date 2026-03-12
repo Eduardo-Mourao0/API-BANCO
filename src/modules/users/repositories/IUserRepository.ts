@@ -7,4 +7,8 @@ export interface IUserRepository {
     create(userData: CreateUserDTO): Promise<any> 
 
     listUsers(): Promise<any[]>
+
+    findAccount(accountNumber: string): Promise<any>;
+
+    deleteAccount(accountNumber: string): Promise<void>
 }
