@@ -1,16 +1,20 @@
 import { type Request, type Response } from "express";
-import { ListUsersUseCase } from "../usecase/ListUserUseCase";
+import { ListUsersUseCase } from "../usecases/ListUserUseCase";
+import { PrismaUserRepository } from "../repositories/PrismaUserRepository";
 
 export class ListUserController{
     async handle(req: Request, res: Response){
-        
-        const listUsersUseCase = new ListUsersUseCase()
 
         try{
+
+            const userRepository = new PrismaUserRepository()
+        
+            const listUsersUseCase = new ListUsersUseCase(userRepository)
             
             const list = await listUsersUseCase.execute()
 
             return res.status(200).json(list)
+        
         }catch(error){
 
             if(error instanceof Error){

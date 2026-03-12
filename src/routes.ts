@@ -21,7 +21,7 @@ router.post("/deposit", (req, res) => depositController.handle(req, res));
 router.post("/withdraw", (req, res) => withdrawController.handle(req, res));
 router.post("/transfer", (req, res) => transferController.handle(req, res));
 
-router.get("/users", (req, res) => listUserController.handle(req, res));
+router.get("/list", (req, res) => listUserController.handle(req, res));
 
 router.delete("/delete", (req, res) => deleteController.handle(req, res));
 
