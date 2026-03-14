@@ -1,11 +1,12 @@
-📌 Funcionalidades da API
-👤 Usuários
+**📌 Funcionalidades da API**
+
+**👤 Usuários**
 
 Criar usuário
 
 Deletar usuário
 
-💳 Contas
+**💳 Contas**
 
 Criar conta
 
@@ -13,7 +14,7 @@ Consultar conta
 
 Deletar conta
 
-💸 Transferências
+**💸 Transferências**
 
 Transferir saldo entre contas
 
@@ -21,7 +22,7 @@ Validação de saldo disponível
 
 Atualização de saldo utilizando transações do Prisma
 
-🧠 Conceitos Aplicados
+**🧠 Conceitos Aplicados**
 
 Separação de responsabilidades
 
@@ -31,7 +32,7 @@ Transações de banco de dados
 
 Princípios de organização de APIs REST
 
-📚 Objetivo do Projeto
+**📚 Objetivo do Projeto**
 
 Este projeto foi desenvolvido com fins educacionais, para praticar conceitos de:
 
@@ -43,8 +44,9 @@ uso de ORM
 
 organização de projetos em TypeScript
 
-👨‍💻 Autor
 
-Eduardo Mourão Aragão
+**👨‍💻 Autor**
+
+**Eduardo Mourão Aragão**
 
 Estudante de Engenharia de Software, interessado em desenvolvimento Backend e construção de APIs.
