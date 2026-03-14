@@ -1,40 +1,23 @@
-import { prisma } from "../../../prisma";
-
-interface depositRequest{
-    accountNumber: string,
-    amount: number;
-}
+import { ITransactionReporitory } from "../repositories/ITransactionRepository"
 
 export class DepositUseCase{
-    async execute({ accountNumber, amount}: depositRequest){
+    constructor(private transactionReporitory: ITransactionReporitory){}
 
+    async execute(accountNumber: string, amount: number){
+
+       
         if(amount <= 0){
             throw new Error("Valor tem que ser MAIOR que 0.")
         }
 
-        const accountExiste = await prisma.account.findUnique({
-            where:{ accountNumber }
-        })
+        const accountExiste = await this.transactionReporitory.findAccount(accountNumber);
 
         if(!accountExiste){
             throw new Error("Conta NAO encontrada.")
         }
 
-        const updatedAccount = await prisma.account.update({
-            where: {accountNumber},
-            data: {
-                balance: {
-                    increment: amount
-                }
-            },
-            select: {
-                id: true,
-                accountNumber: true,
-                balance: true,
-                updatedAt: true
-            }
-        })
+        await this.transactionReporitory.deposit(accountNumber, amount);
 
-        return updatedAccount;
+        return {message: 'Deposito realizado com SUCESSO ✅'}
     }
 }

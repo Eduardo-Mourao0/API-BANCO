@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { WithdrawUseCase } from "../usecases/WithdrawUseCase";
+import { prismaTransactionRepository } from "../repositories/prismaRepository";
 
 export class WithdrawController{
     async handle(req: Request, res: Response){
@@ -7,17 +8,16 @@ export class WithdrawController{
             
             const { accountNumber, amount} = req.body;
 
-            const withdrawUseCase = new WithdrawUseCase()
+            const transactionRepository = new prismaTransactionRepository()
+            
+            const withdrawUseCase = new WithdrawUseCase(transactionRepository)
 
-            const result = await withdrawUseCase.execute({
+            const result = await withdrawUseCase.execute(
                 accountNumber,
-                amount: Number(amount)
-            });
+                amount
+            );
 
-            return res.status(200).json({
-                message: 'Saque efetuado com SUCESSO! ✅',
-                account: result
-            })
+            return res.status(200).json(result)
        
         }catch(error){
             

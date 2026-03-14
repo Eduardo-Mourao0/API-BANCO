@@ -1,30 +1,36 @@
 import { type Request, type Response } from "express";
 import { DepositUseCase } from "../usecases/DepositUseCase";
+import { prismaTransactionRepository } from "../repositories/prismaRepository";
 
 export class DepositController{
     async handle(req: Request, res: Response){
 
-        const {accountNumber, amount} = req.body
-
-        const depositUseCase = new DepositUseCase()
-
         try{
 
-            const deposito = await depositUseCase.execute({
-                accountNumber, 
-                amount: Number(amount)
-            })
+            const {accountNumber, amount} = req.body
 
-            return res.status(200).json({
-                message: 'Deposito efetuado com SUCESSO! ✅',
-                account: deposito
-            })
+            const transactionRepository = new prismaTransactionRepository()
+
+            const depositUseCase = new DepositUseCase(transactionRepository)
+
+            const deposito = await depositUseCase.execute(
+                accountNumber, 
+                amount
+            )
+
+            return res.status(200).json(deposito)
         
-        }catch (error:any){
+        }catch (error){
            
-            return res.status(400).json({
-                message: error.message
-            })
+            if(error instanceof Error){
+                return res.status(400).json({
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                message: "Erro interno"
+            });
         }
     }
 

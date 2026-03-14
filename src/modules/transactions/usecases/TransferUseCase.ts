@@ -1,22 +1,13 @@
-import { prisma } from "../../../prisma";
-
-interface TransferRequest{
-    fromAccount: string,
-    toAccount:string,
-    amount: number
-}
+import { ITransactionReporitory } from "../repositories/ITransactionRepository";
 
 export class TransferUseCase{
-    async execute({ fromAccount, toAccount, amount}: TransferRequest){
+    constructor(private transactionsRepository: ITransactionReporitory){}
 
-        const sender = await prisma.account.findUnique({
-            where: {accountNumber: fromAccount}
-        });
+    async execute(fromAccount: string, toAccount:string, amount: number){
 
-        const receiver = await prisma.account.findUnique({
-            where: {accountNumber: toAccount},
-            
-        });
+        const sender = await this.transactionsRepository.findAccount(fromAccount)
+
+        const receiver = await this.transactionsRepository.findAccount(toAccount)
 
         if (!sender) {
             throw new Error("Conta de origem não encontrada");
@@ -38,56 +29,19 @@ export class TransferUseCase{
             throw new Error("Saldo insuficiente");
         }
 
-        const [senderUpdated, receiverUpdated] = await prisma.$transaction([prisma.account.update({
-        where: { accountNumber: fromAccount },
-        data: {
-          balance: {
-            decrement: amount
-          }
-        },
-        select: {
-            accountNumber: true,
-            user:{
-                select:{
-                    name:true
-                }
-            }
-        }
-        
-        }), 
-            
-        prisma.account.update({
-                where: { accountNumber: toAccount },
-                data: {
-                balance: {
-                    increment: amount
-                }
-                },            
-                select: {
-                    accountNumber: true,
-                    updatedAt: true,
-                    user:{
-                        select:{
-                            name:true
-                        }
-                    }
-                }
-            })
-        ]);
+        await this.transactionsRepository.transfer(fromAccount, toAccount, amount)
 
-        return {
-            FROM:{
-                sender_Account: senderUpdated.accountNumber,
-                sender_Name: senderUpdated.user.name
-            },
-            
-            TO: {
-            receiver_Account: receiverUpdated.accountNumber,
-            receiver_Name: receiverUpdated.user.name
-            },
-            amount,
-            Update: receiverUpdated.updatedAt
-        }
+        const COMPROVANTE = {
+            Id: crypto.randomUUID(),
+            type: "TRANSFER",
+            fromAccount: fromAccount,
+            toAccount: toAccount,
+            amount: amount,
+            updatedAt: true,
+            status: "SUCCESS"
+        };
+
+        return COMPROVANTE;
         
     }
 }

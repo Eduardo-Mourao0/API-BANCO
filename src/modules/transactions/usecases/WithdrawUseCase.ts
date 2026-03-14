@@ -1,16 +1,11 @@
-import { prisma } from "../../../prisma";
-
-interface WithdrawRequest{
-    accountNumber: string,
-    amount: number;
-}
+import { ITransactionReporitory } from "../repositories/ITransactionRepository";
 
 export class WithdrawUseCase{
-    async execute({ accountNumber, amount}: WithdrawRequest){
+    constructor(private transactionReposity: ITransactionReporitory){}
+    
+    async execute(accountNumber: string, amount: number){
 
-        const account = await prisma.account.findFirst({
-            where: {accountNumber}
-        })
+        const account = await this.transactionReposity.findAccount(accountNumber);
 
         if(!account){
             throw new Error("Conta nao encontrada!")
@@ -24,19 +19,8 @@ export class WithdrawUseCase{
             throw new Error('Saldo insuficiente!')
         }
 
-        const accountUpdated = await prisma.account.update({
-            where: { id: account.id},
-            data: {
-                balance: account.balance.toNumber() - amount
-            },
-            select: {
-                id: false,
-                accountNumber: true,
-                balance: true,
-                updatedAt: true
-            }
-        });
+        await this.transactionReposity.withdraw(accountNumber, amount);
 
-        return accountUpdated;
+        return {message: 'Saque realizado com SUCESSO ✅'}
     }
 }

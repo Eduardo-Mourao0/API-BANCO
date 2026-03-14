@@ -1,24 +1,26 @@
 import { type Request, type Response } from "express";
 import { TransferUseCase } from "../usecases/TransferUseCase";
+import { prismaTransactionRepository } from "../repositories/prismaRepository";
 
 export class TransferController{
     async handle(req: Request, res: Response){
 
-        const {fromAccount, toAccount, amount} = req.body;
-        
-        const transferUseCase = new TransferUseCase()
-
         try{
+
+            const {fromAccount, toAccount, amount} = req.body;
+        
+            const transactionRepository = new prismaTransactionRepository()
+            const transferUseCase = new TransferUseCase(transactionRepository)
             
-            const transfer = await transferUseCase.execute({
+            const result = await transferUseCase.execute(
                 toAccount,
                 fromAccount,
-                amount: Number(amount)
-            });
+                amount
+            );
 
             return res.status(200).json({
                 message: 'Transferencia Efetuada com SUCESSO! ✅',
-                Comprovante: transfer
+                Comprovante: result
             })
         
         }catch(error){

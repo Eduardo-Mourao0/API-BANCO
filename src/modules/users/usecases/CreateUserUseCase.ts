@@ -8,9 +8,28 @@ export class CreateUserUseCase{
     
     async execute(data: CreateUserDTO){
 
+        let accountNumber = "";
+        let accountExist = true;
+        let attempts = 0;
+
         const { name, cpf, email, password } = data;
 
-        const generatedAccountNumber = Math.floor(10000 + Math.random() * 90000).toString();
+        while(accountExist && attempts < 10){
+
+            attempts++;
+
+            accountNumber = Math.floor(100000 + Math.random() * 900000).toString();
+
+            const account = await this.userRepository.findAccount(accountNumber);
+
+            if(!account){
+                accountExist = false;
+            }
+        }
+
+        if(accountExist){
+            throw new Error("Não foi possível gerar número de conta");
+        }
 
         const userJaExiste = await this.userRepository.findByCpfOrEmail(cpf,email);
 
@@ -23,7 +42,7 @@ export class CreateUserUseCase{
                 cpf,
                 email,
                 password,
-                accountNumber: generatedAccountNumber
+                accountNumber
             });
 
         return user;
