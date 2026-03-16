@@ -1,6 +1,7 @@
 import { type Request, type Response } from "express";
 import { TransferUseCase } from "../usecases/TransferUseCase";
 import { prismaTransactionRepository } from "../repositories/prismaRepository";
+import { saveLog } from "../../../saveLog";
 
 export class TransferController{
     async handle(req: Request, res: Response){
@@ -24,6 +25,8 @@ export class TransferController{
             })
         
         }catch(error){
+
+            await saveLog(error, req.originalUrl);
 
             if (error instanceof Error) {
                 return res.status(400).json({

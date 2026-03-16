@@ -1,6 +1,7 @@
 import { type Request, type Response } from "express";
 import { CreateUserUseCase } from "../usecases/CreateUserUseCase";
 import { PrismaUserRepository } from "../repositories/PrismaUserRepository";
+import { saveLog } from "../../../saveLog";
 
 export class UserController{
     async create(req:Request, res: Response){
@@ -19,6 +20,8 @@ export class UserController{
         
         }catch (error) {
             console.log(error)
+
+            await saveLog(error, req.originalUrl);
 
             if (error instanceof Error) {
                 return res.status(400).json({
