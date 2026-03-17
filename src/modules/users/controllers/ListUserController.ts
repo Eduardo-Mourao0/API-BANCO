@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
 import { ListUsersUseCase } from "../usecases/ListUserUseCase";
 import { PrismaUserRepository } from "../repositories/PrismaUserRepository";
-import { saveLog } from "../../../saveLog";
+import { Logger } from "../../../utils/Logger";
 
 export class ListUserController{
     async handle(req: Request, res: Response){
@@ -14,11 +14,13 @@ export class ListUserController{
             
             const list = await listUsersUseCase.execute()
 
+            await Logger.info("Listar Usuarios", req.originalUrl);
+
             return res.status(200).json(list)
         
         }catch(error){
 
-            await saveLog(error, req.originalUrl);
+            await Logger.error(error, req.originalUrl);
 
             if(error instanceof Error){
                 return res.status(400).json({

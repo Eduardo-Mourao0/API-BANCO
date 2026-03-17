@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
 import { CreateUserUseCase } from "../usecases/CreateUserUseCase";
 import { PrismaUserRepository } from "../repositories/PrismaUserRepository";
-import { saveLog } from "../../../saveLog";
+import { Logger } from "../../../utils/Logger";
 
 export class UserController{
     async create(req:Request, res: Response){
@@ -13,6 +13,8 @@ export class UserController{
             
             const user = await createUserUseCase.execute(req.body);
 
+            await Logger.info("Usuário criado", req.originalUrl);
+
             return res.status(201).json({
                 message: 'Conta criada com SUCESSO! ✅',
                 user: user
@@ -21,7 +23,8 @@ export class UserController{
         }catch (error) {
             console.log(error)
 
-            await saveLog(error, req.originalUrl);
+            await Logger.error(error, req.originalUrl);
+
 
             if (error instanceof Error) {
                 return res.status(400).json({

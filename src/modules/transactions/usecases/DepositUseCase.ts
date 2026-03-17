@@ -7,7 +7,7 @@ export class DepositUseCase{
 
        
         if(amount <= 0){
-            throw new Error("Valor tem que ser MAIOR que 0.")
+            throw new Error("Valor tem que ser MAIOR que 0.");
         }
 
         const accountExiste = await this.transactionReporitory.findAccount(accountNumber);

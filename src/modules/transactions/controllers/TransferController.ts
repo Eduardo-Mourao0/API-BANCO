@@ -1,8 +1,7 @@
 import { type Request, type Response } from "express";
 import { TransferUseCase } from "../usecases/TransferUseCase";
 import { prismaTransactionRepository } from "../repositories/prismaRepository";
-import { saveLog } from "../../../saveLog";
-
+import { Logger } from "../../../utils/Logger";
 export class TransferController{
     async handle(req: Request, res: Response){
 
@@ -19,6 +18,8 @@ export class TransferController{
                 amount
             );
 
+            await Logger.info("Transferência realizada", req.originalUrl);
+
             return res.status(200).json({
                 message: 'Transferencia Efetuada com SUCESSO! ✅',
                 Comprovante: result
@@ -26,7 +27,7 @@ export class TransferController{
         
         }catch(error){
 
-            await saveLog(error, req.originalUrl);
+            await Logger.error(error, req.originalUrl);
 
             if (error instanceof Error) {
                 return res.status(400).json({

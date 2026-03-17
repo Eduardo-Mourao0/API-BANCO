@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { WithdrawUseCase } from "../usecases/WithdrawUseCase";
 import { prismaTransactionRepository } from "../repositories/prismaRepository";
-import { saveLog } from "../../../saveLog";
+import { Logger } from "../../../utils/Logger";
 
 export class WithdrawController{
     async handle(req: Request, res: Response){
@@ -18,11 +18,13 @@ export class WithdrawController{
                 amount
             );
 
+            await Logger.info("Saque Efetuado com Sucesso", req.originalUrl);
+
             return res.status(200).json(result)
        
         }catch(error){
 
-            await saveLog(error, req.originalUrl);
+            await Logger.error(error, req.originalUrl);
             
             if(error instanceof Error){
                 return res.status(400).json({

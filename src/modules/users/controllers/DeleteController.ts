@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
 import { DeleteUserUseCase } from "../usecases/DeleteUserUseCase";
 import { PrismaUserRepository } from "../repositories/PrismaUserRepository";
-import { saveLog } from "../../../saveLog";
+import { Logger } from "../../../utils/Logger";
 
 export class DeleteController{
     async handle(req: Request<{ accountNumber: string }>, res: Response){
@@ -16,11 +16,13 @@ export class DeleteController{
 
             const del = await deleteUser.execute(accountNumber);
 
+            await Logger.info("Usuário Deletado", req.originalUrl);
+
             return res.status(200).json(del)
         
         }catch(error){
 
-            await saveLog(error, req.originalUrl);
+            await Logger.error(error, req.originalUrl);
             
             if(error instanceof Error){
                 return res.status(400).json({

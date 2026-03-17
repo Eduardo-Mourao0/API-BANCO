@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
 import { DepositUseCase } from "../usecases/DepositUseCase";
 import { prismaTransactionRepository } from "../repositories/prismaRepository";
-import { saveLog } from "../../../saveLog";
+import { Logger } from "../../../utils/Logger";
 
 export class DepositController{
     async handle(req: Request, res: Response){
@@ -19,11 +19,13 @@ export class DepositController{
                 amount
             )
 
+            await Logger.info("Deposito Efetuado com Sucesso", req.originalUrl);
+
             return res.status(200).json(deposito)
         
         }catch (error){
 
-            await saveLog(error, req.originalUrl);
+            await Logger.error(error, req.originalUrl);
            
             if(error instanceof Error){
                 return res.status(400).json({
