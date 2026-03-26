@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
-import { ListUsersUseCase } from "../usecases/ListUserUseCase";
-import { PrismaUserRepository } from "../repositories/PrismaUserRepository";
-import { Logger } from "../../../utils/Logger";
+import { ListUsersUseCase } from "../../../../application/usecases/users/ListUserUseCase";
+import { PrismaUserRepository } from "../../../repositories/PrismaUserRepository";
+import { Logger } from "../../../../utils/Logger";
 
 export class ListUserController{
     async handle(req: Request, res: Response){

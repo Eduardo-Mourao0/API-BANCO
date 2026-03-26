@@ -1,5 +1,5 @@
-import { ITransactionReporitory } from "./ITransactionRepository";
-import { prisma } from "../../../prisma";
+import { ITransactionReporitory } from "../../domain/repositories/ITransactionRepository";
+import { prisma } from "../database/prisma";
 
 export class prismaTransactionRepository implements ITransactionReporitory{
 

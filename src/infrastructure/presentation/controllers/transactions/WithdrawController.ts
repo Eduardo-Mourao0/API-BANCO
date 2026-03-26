@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { WithdrawUseCase } from "../usecases/WithdrawUseCase";
-import { prismaTransactionRepository } from "../repositories/prismaRepository";
-import { Logger } from "../../../utils/Logger";
+import { WithdrawUseCase } from "../../../../application/usecases/transactions/WithdrawUseCase";
+import { prismaTransactionRepository } from "../../../repositories/PrismaTransactionRepository";
+import { Logger } from "../../../../utils/Logger";
 
 export class WithdrawController{
     async handle(req: Request, res: Response){

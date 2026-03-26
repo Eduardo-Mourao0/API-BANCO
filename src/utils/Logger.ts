@@ -1,4 +1,4 @@
-import { prisma } from "../prisma";
+import { prisma } from "../infrastructure/database/prisma";
 
 export class Logger{
 

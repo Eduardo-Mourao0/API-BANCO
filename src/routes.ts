@@ -1,11 +1,11 @@
 import { Router } from "express";
 
-import { UserController } from "./modules/users/controllers/UserController";
-import { DepositController } from "./modules/transactions/controllers/DepositController";
-import { ListUserController } from "./modules/users/controllers/ListUserController";
-import { WithdrawController } from "./modules/transactions/controllers/WithdrawController";
-import { TransferController } from "./modules/transactions/controllers/TransferController";
-import { DeleteController } from "./modules/users/controllers/DeleteController";
+import { UserController } from "./infrastructure/presentation/controllers/users/controllers/UserController";
+import { DepositController } from "./infrastructure/presentation/controllers/DepositController";
+import { ListUserController } from "./infrastructure/presentation/controllers/users/controllers/ListUserController";
+import { WithdrawController } from "./infrastructure/presentation/controllers/WithdrawController";
+import { TransferController } from "./infrastructure/presentation/controllers/TransferController";
+import { DeleteController } from "./infrastructure/presentation/controllers/users/DeleteController";
 
 const router = Router();
 

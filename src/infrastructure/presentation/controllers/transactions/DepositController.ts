@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
-import { DepositUseCase } from "../usecases/DepositUseCase";
-import { prismaTransactionRepository } from "../repositories/prismaRepository";
-import { Logger } from "../../../utils/Logger";
+import { DepositUseCase } from "../../../../application/usecases/transactions/DepositUseCase";
+import { prismaTransactionRepository } from "../../../repositories/PrismaTransactionRepository";
+import { Logger } from "../../../../utils/Logger";
 
 export class DepositController{
     async handle(req: Request, res: Response){

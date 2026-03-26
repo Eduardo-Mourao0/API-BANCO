@@ -1,4 +1,4 @@
-import { ITransactionReporitory } from "../repositories/ITransactionRepository"
+import { ITransactionReporitory } from "../../../domain/repositories/ITransactionRepository";
 
 export class DepositUseCase{
     constructor(private transactionReporitory: ITransactionReporitory){}

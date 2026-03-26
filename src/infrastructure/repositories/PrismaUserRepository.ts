@@ -1,5 +1,5 @@
-import { IUserRepository } from "./IUserRepository";
-import { prisma } from "../../../prisma";
+import { IUserRepository } from "../../domain/repositories/IUserRepository";
+import { prisma } from "../database/prisma";
 
 export class PrismaUserRepository implements IUserRepository {
     

@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
-import { DeleteUserUseCase } from "../usecases/DeleteUserUseCase";
-import { PrismaUserRepository } from "../repositories/PrismaUserRepository";
-import { Logger } from "../../../utils/Logger";
+import { DeleteUserUseCase } from "../../../../application/usecases/users/DeleteUserUseCase";
+import { PrismaUserRepository } from "../../../repositories/PrismaUserRepository";
+import { Logger } from "../../../../utils/Logger";
 
 export class DeleteController{
     async handle(req: Request<{ accountNumber: string }>, res: Response){

@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
-import { TransferUseCase } from "../usecases/TransferUseCase";
-import { prismaTransactionRepository } from "../repositories/prismaRepository";
-import { Logger } from "../../../utils/Logger";
+import { TransferUseCase } from "../../../../application/usecases/transactions/TransferUseCase";
+import { prismaTransactionRepository } from "../../../repositories/PrismaTransactionRepository";
+import { Logger } from "../../../../utils/Logger";
 export class TransferController{
     async handle(req: Request, res: Response){
 
