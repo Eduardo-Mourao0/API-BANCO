@@ -1,23 +1,33 @@
-import { ITransactionReporitory } from "../../../domain/repositories/ITransactionRepository";
+import { ITransactionRepository } from "../../../domain/repositories/ITransactionRepository";
+import { Account } from "../../../domain/entities/Account";
+import { BusinessError } from "../../../domain/exceptions/BusinessError";
 
 export class DepositUseCase{
-    constructor(private transactionReporitory: ITransactionReporitory){}
+    constructor(private transactionRepository: ITransactionRepository){}
 
     async execute(accountNumber: string, amount: number){
 
-       
-        if(amount <= 0){
-            throw new Error("Valor tem que ser MAIOR que 0.");
+        const accountData = await this.transactionRepository.findAccount(accountNumber);
+
+        if(!accountData){
+            throw new BusinessError("Conta NAO encontrada.")
         }
 
-        const accountExiste = await this.transactionReporitory.findAccount(accountNumber);
+        const account = new Account(
+            accountData.accountNumber,
+            accountData.balance
+        );
 
-        if(!accountExiste){
-            throw new Error("Conta NAO encontrada.")
+        account.deposit(amount);
+
+        await this.transactionRepository.updateBalance(
+            account.accountNumber, 
+            account.balance
+        );
+
+        return {
+            message: 'Deposito realizado com SUCESSO!✅',
+            balance: account.balance
         }
-
-        await this.transactionReporitory.deposit(accountNumber, amount);
-
-        return {message: 'Deposito realizado com SUCESSO ✅'}
     }
 }

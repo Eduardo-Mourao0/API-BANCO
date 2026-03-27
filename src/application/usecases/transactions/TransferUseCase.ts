@@ -1,47 +1,43 @@
-import { ITransactionReporitory } from "../../../domain/repositories/ITransactionRepository";
-
-export class TransferUseCase{
-    constructor(private transactionsRepository: ITransactionReporitory){}
-
-    async execute(fromAccount: string, toAccount:string, amount: number){
-
-        const sender = await this.transactionsRepository.findAccount(fromAccount)
-
-        const receiver = await this.transactionsRepository.findAccount(toAccount)
-
-        if (!sender) {
-            throw new Error("Conta de origem não encontrada");
-        }
-
-        if (!receiver) {
-            throw new Error("Conta de destino não encontrada");
-        }
-
-        if(fromAccount === toAccount){
-            throw new Error('Nao e possivel fazer transferencia para a MESMA conta! ❌');
-        }
-
-        if(amount <= 0){
-            throw new Error('O valor precisa ser MAIOR que 0');
-        }
-
-        if(sender.balance.toNumber() < amount){
-            throw new Error("Saldo insuficiente");
-        }
-
-        await this.transactionsRepository.transfer(fromAccount, toAccount, amount)
-
-        const COMPROVANTE = {
-            Id: crypto.randomUUID(),
-            type: "TRANSFER",
-            fromAccount: fromAccount,
-            toAccount: toAccount,
-            amount: amount,
-            updatedAt: true,
-            status: "SUCCESS"
-        };
-
-        return COMPROVANTE;
+import { ITransactionRepository } from "../../../domain/repositories/ITransactionRepository";
+import { Account } from "../../../domain/entities/Account";
+import { BusinessError } from "../../../domain/exceptions/BusinessError";
+ 
+export class TransferUseCase {
+    constructor(private transactionRepository: ITransactionRepository) {}
+ 
+    async execute(fromAccountNumber: string, toAccountNumber: string, amount: number) {
         
+        const [fromData, toData] = await Promise.all([
+            this.transactionRepository.findAccount(fromAccountNumber),
+            this.transactionRepository.findAccount(toAccountNumber)
+        ]);
+ 
+        if (!fromData) throw new BusinessError("Conta de origem não encontrada.");
+        
+        if (!toData) throw new BusinessError("Conta de destino não encontrada.");
+ 
+        const fromAccount = new Account(
+            fromData.accountNumber, 
+            fromData.balance
+        );
+        
+        const toAccount = new Account(
+            toData.accountNumber, 
+            toData.balance
+        );
+ 
+        fromAccount.transfer(amount, toAccount);
+ 
+        await this.transactionRepository.transfer(
+            fromAccount.accountNumber,
+            toAccount.accountNumber,
+            fromAccount.balance,
+            toAccount.balance
+        );
+ 
+        return {
+            message: "Transferência realizada com sucesso.",
+            balance: fromAccount.balance
+        };
     }
 }

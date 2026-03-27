@@ -1,26 +1,28 @@
-import { ITransactionReporitory } from "../../../domain/repositories/ITransactionRepository";
+import { ITransactionRepository } from "../../../domain/repositories/ITransactionRepository";
+import { Account } from "../../../domain/entities/Account";
+import { BusinessError } from "../../../domain/exceptions/BusinessError";
 
 export class WithdrawUseCase{
-    constructor(private transactionReposity: ITransactionReporitory){}
+    constructor(private transactionRepository: ITransactionRepository){}
     
     async execute(accountNumber: string, amount: number){
 
-        const account = await this.transactionReposity.findAccount(accountNumber);
+        const accountData = await this.transactionRepository.findAccount(accountNumber);
 
-        if(!account){
-            throw new Error("Conta nao encontrada!")
-        }
-        
-        if(amount <= 0){
-            throw new Error('Valor precisa ser MAIOR que 0!');
-        }
-        
-        if(account.balance.toNumber() < amount){
-            throw new Error('Saldo insuficiente!')
-        }
+        if(!accountData) throw new BusinessError("Conta nao encontrada!");
 
-        await this.transactionReposity.withdraw(accountNumber, amount);
+        const account = new Account(
+            accountData.accountNumber,
+            accountData.balance
+        );
 
-        return {message: 'Saque realizado com SUCESSO ✅'}
+        account.withdraw(amount);
+       
+        await this.transactionRepository.updateBalance(accountNumber, amount);
+
+        return {
+            message: 'Saque realizado com SUCESSO ✅',
+            balance: account.balance
+        }
     }
 }

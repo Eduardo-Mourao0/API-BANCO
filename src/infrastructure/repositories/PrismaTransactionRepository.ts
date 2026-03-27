@@ -1,70 +1,38 @@
-import { ITransactionReporitory } from "../../domain/repositories/ITransactionRepository";
+import { ITransactionRepository } from "../../domain/repositories/ITransactionRepository";
+import { AccountDTO } from "../../application/dtos/AccountDTO";
 import { prisma } from "../database/prisma";
-
-export class prismaTransactionRepository implements ITransactionReporitory{
-
-    async findAccount(accountNumber: string): Promise<any> {
-        
-        return prisma.account.findUnique({
-            where: {accountNumber}
-        })
+ 
+export class PrismaTransactionRepository implements ITransactionRepository{
+ 
+    async findAccount(accountNumber: string): Promise<AccountDTO | null> {
+        const account = await prisma.account.findUnique({
+            where: { accountNumber }
+        });
+ 
+        if (!account) return null;
+ 
+        return {
+            accountNumber: account.accountNumber,
+            balance: account.balance.toNumber()
+        };
     }
-
-    async deposit(accountNumber: string, amount: number): Promise<void> {
-        
+ 
+    async updateBalance(accountNumber: string, balance: number): Promise<void> {
         await prisma.account.update({
-            where: {accountNumber},
-            data: {
-                balance:{
-                    increment: amount
-                }                
-            },
-            select: {
-                id:true,
-                accountNumber: true,
-                balance: true,
-                updatedAt: true
-            }
-        })
+            where: { accountNumber },
+            data: { balance }
+        });
     }
-
-    async withdraw(accountNumber: string, amount: number): Promise<void> {
-        
-        await prisma.account.update({
-            where: {accountNumber},
-            data: {
-                balance: {
-                    decrement: amount
-                }
-            },
-            select: {
-                id: false,
-                accountNumber: true,
-                balance: true,
-                updatedAt: true
-            }
-        })
-    }
-
-    async transfer(fromAccount: string, toAccount: string, amount: number): Promise<void> {
-        
+ 
+    async transfer(fromAccount: string, toAccount: string, fromBalance: number, toBalance: number): Promise<void> {
         await prisma.$transaction([
             prisma.account.update({
-                where: {accountNumber: fromAccount},
-                data: {
-                    balance: {
-                        decrement: amount
-                    }
-                }
+                where: { accountNumber: fromAccount },
+                data: { balance: fromBalance }
             }),
-
             prisma.account.update({
-                where: {accountNumber: toAccount},
-                data: {
-                    balance: {
-                        increment: amount
-                    }
-                }
+                where: { accountNumber: toAccount },
+                data: { balance: toBalance }
             })
         ]);
     }

@@ -1,10 +1,10 @@
-export interface ITransactionReporitory{
+import { AccountDTO } from "../../application/dtos/AccountDTO";
 
-    findAccount(accountNumber: string): Promise<any>
+export interface ITransactionRepository{
 
-    deposit(accountNumber: string, amount: number): Promise<void>
+    findAccount(accountNumber: string): Promise<AccountDTO | null>
 
-    withdraw(accountNumber: string, amount: number): Promise<void>
+    updateBalance(accountNumber: string, amount: number): Promise<void>;
 
-    transfer(from: string, to: string, amount: number): Promise<void>
+    transfer(fromAccount: string, toAccount: string, fromBalance: number, toBalance: number): Promise<void>;
 }
