@@ -22,12 +22,19 @@ export class CreateUserUseCase {
 
         await user.hashPassword();
 
-        return await this.userRepository.create({
+        await this.userRepository.create({
             name: user.name,
             cpf: user.cpf,
             email: user.email,
             password: user.passaword,
             accountNumber: user.accountNumber
         });
+
+        return {
+            name: user.name,
+            cpf: user.cpf,
+            email: user.email,
+            accountNumber: user.accountNumber
+        };
     }
 }

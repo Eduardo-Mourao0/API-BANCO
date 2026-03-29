@@ -13,11 +13,18 @@ export class DepositController{
             const {accountNumber, amount} = req.body
 
             
-            await this.depositUsecase.execute(accountNumber, amount);
+            const receipt = await this.depositUsecase.execute(accountNumber, amount);
 
             await Logger.info("Deposito Efetuado com Sucesso", req.originalUrl);
 
-            return res.status(200).json({message: "Deposito Efetuado com Sucesso"});
+            return res.status(200).json({message: "Deposito Efetuado com Sucesso",
+                receipt: {
+                    accountNumber: receipt.accountNumber,
+                    amount: receipt.amount,
+                    balance: receipt.balance,
+                    date: receipt.date
+                }
+            });
         
         }catch (error){
 

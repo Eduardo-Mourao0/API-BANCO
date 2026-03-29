@@ -21,8 +21,10 @@ export class WithdrawUseCase{
         await this.transactionRepository.updateBalance(accountNumber, amount);
 
         return {
-            message: 'Saque realizado com SUCESSO ✅',
-            balance: account.balance
-        }
+            accountNumber: account.accountNumber,
+            amount,
+            balance: account.balance,
+            date: new Date()
+        };
     }
 }

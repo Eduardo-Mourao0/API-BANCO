@@ -1,28 +1,26 @@
 import { type Request, type Response } from "express";
 import { ListUsersUseCase } from "../../../../application/usecases/users/ListUserUseCase";
-import { PrismaUserRepository } from "../../../repositories/PrismaUserRepository";
 import { Logger } from "../../../../utils/Logger";
+import { BusinessError } from "../../../../domain/exceptions/BusinessError";
 
 export class ListUserController{
+    constructor(private listUsersUseCase: ListUsersUseCase){}
+
     async handle(req: Request, res: Response){
 
         try{
-
-            const userRepository = new PrismaUserRepository()
-        
-            const listUsersUseCase = new ListUsersUseCase(userRepository)
             
-            const list = await listUsersUseCase.execute()
+            await this.listUsersUseCase.execute()
 
             await Logger.info("Listar Usuarios", req.originalUrl);
 
-            return res.status(200).json(list)
+            return res.status(200).json({message: "Lista de Usuarios"})
         
         }catch(error){
 
             await Logger.error(error, req.originalUrl);
 
-            if(error instanceof Error){
+            if(error instanceof BusinessError){
                 return res.status(400).json({
                     message: error.message
                 })

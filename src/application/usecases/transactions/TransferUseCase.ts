@@ -34,5 +34,12 @@ export class TransferUseCase {
             fromAccount.balance,
             toAccount.balance
         );
+
+        return {
+            fromAccount: fromAccount.accountNumber,
+            toAccount: toAccount.accountNumber,
+            amount,
+            date: new Date()
+        };
     }
 }

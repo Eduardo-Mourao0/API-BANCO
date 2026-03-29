@@ -26,8 +26,10 @@ export class DepositUseCase{
         );
 
         return {
-            message: 'Deposito realizado com SUCESSO!✅',
-            balance: account.balance
+            accountNumber: account.accountNumber,
+            amount,
+            balance: account.balance,
+            date: new Date()
         }
     }
 }
