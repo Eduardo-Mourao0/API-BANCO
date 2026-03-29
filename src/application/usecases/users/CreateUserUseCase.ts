@@ -1,50 +1,33 @@
-import { CreateUserDTO } from "../../dtos/CreateUserDTO";
 import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { User } from "../../../domain/entities/User";
+import { BusinessError } from "../../../domain/exceptions/BusinessError";
+import { CreateUserDTO } from "../../dtos/CreateUserDTO";
+import { v4 as uuidv4 } from "uuid";
 
-
-export class CreateUserUseCase{
-    
+export class CreateUserUseCase {
     constructor(private userRepository: IUserRepository){}
-    
-    async execute(data: CreateUserDTO){
 
-        let accountNumber = "";
-        let accountExist = true;
-        let attempts = 0;
+    async execute(data: CreateUserDTO) {
+        const {name, cpf, email, password} = data;
 
-        const { name, cpf, email, password } = data;
+        const userAlreadyExist = await this.userRepository.findByCpfOrEmail(cpf, email);
 
-        while(accountExist && attempts < 10){
-
-            attempts++;
-
-            accountNumber = Math.floor(100000 + Math.random() * 900000).toString();
-
-            const account = await this.userRepository.findAccount(accountNumber);
-
-            if(!account){
-                accountExist = false;
-            }
+        if(userAlreadyExist){
+            throw new BusinessError("CPF ou email ja cadastrado.");
         }
 
-        if(accountExist){
-            throw new Error("Não foi possível gerar número de conta");
-        }
+        const accountNumber = uuidv4();
 
-        const userJaExiste = await this.userRepository.findByCpfOrEmail(cpf,email);
+        const user = new User(name, cpf, email, password, accountNumber)
 
-        if (userJaExiste){
-            throw new Error('CPF ou Email já cadastrado!');
-        }
-        
-        const user = await this.userRepository.create({
-                name,
-                cpf,
-                email,
-                password,
-                accountNumber
-            });
+        await user.hashPassword();
 
-        return user;
+        return await this.userRepository.create({
+            name: user.name,
+            cpf: user.cpf,
+            email: user.email,
+            password: user.passaword,
+            accountNumber: user.accountNumber
+        });
     }
 }

@@ -34,10 +34,5 @@ export class TransferUseCase {
             fromAccount.balance,
             toAccount.balance
         );
- 
-        return {
-            message: "Transferência realizada com sucesso.",
-            balance: fromAccount.balance
-        };
     }
 }

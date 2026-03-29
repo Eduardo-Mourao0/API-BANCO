@@ -19,7 +19,5 @@ export interface IUserRepository {
 
     findAll(): Promise<any[]>;
 
-    findAccount(accountNumber: string): Promise<AccountDTO | null>;
-
     deleteAccount(cpf: string): Promise<void>;
 }
