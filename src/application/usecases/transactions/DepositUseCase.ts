@@ -25,6 +25,8 @@ export class DepositUseCase{
             account.balance
         );
 
+        await this.transactionRepository.saveTransaction(accountData.accountNumber, "DEPOSIT", amount);
+
         return {
             accountNumber: account.accountNumber,
             amount,

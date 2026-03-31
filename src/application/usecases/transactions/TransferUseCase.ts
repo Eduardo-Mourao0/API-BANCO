@@ -35,6 +35,9 @@ export class TransferUseCase {
             toAccount.balance
         );
 
+        await this.transactionRepository.saveTransaction(fromAccount.accountNumber, "TRANSFER", amount);
+        await this.transactionRepository.saveTransaction(toAccount.accountNumber, "DEPOSIT", amount);
+
         return {
             fromAccount: fromAccount.accountNumber,
             toAccount: toAccount.accountNumber,

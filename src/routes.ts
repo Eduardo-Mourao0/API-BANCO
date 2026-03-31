@@ -6,6 +6,7 @@ import { makeDeleteUserController } from "./infrastructure/factories/makeDeleteU
 import { makeDepositController } from "./infrastructure/factories/makeDepositController";
 import { makeWithdrawController } from "./infrastructure/factories/makeWithdrawController";
 import { makeTransferController } from "./infrastructure/factories/makeTransferController";
+import { makeGetExtractController } from "./infrastructure/factories/makeGetExtractController";
  
 const router = Router();
  
@@ -16,5 +17,6 @@ router.delete("/users/:cpf", (req, res) => makeDeleteUserController().handle(req
 router.post("/deposit", (req, res) => makeDepositController().handle(req, res));
 router.post("/withdraw", (req, res) => makeWithdrawController().handle(req, res));
 router.post("/transfer", (req, res) => makeTransferController().handle(req, res));
+router.get("/extract/:accountNumber", (req, res) => makeGetExtractController().handle(req, res));
  
 export { router };

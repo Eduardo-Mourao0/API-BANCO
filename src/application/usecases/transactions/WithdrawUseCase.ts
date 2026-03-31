@@ -20,6 +20,8 @@ export class WithdrawUseCase{
        
         await this.transactionRepository.updateBalance(accountNumber, account.balance);
 
+        await this.transactionRepository.saveTransaction(accountNumber, "WITHDRAW", amount);
+
         return {
             accountNumber: account.accountNumber,
             amount,
