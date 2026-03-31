@@ -12,7 +12,7 @@ export class User{
         this.validate();
     }
 
-    get passaword(): string {
+    get password(): string {
         return this._password
     }
 

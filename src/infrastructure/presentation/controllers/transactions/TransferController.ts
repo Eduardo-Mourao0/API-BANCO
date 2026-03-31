@@ -30,9 +30,9 @@ export class TransferController{
             })
         
         }catch(error){
-
+            
             await Logger.error(error, req.originalUrl);
-
+            
             if (error instanceof BusinessError) {
                 return res.status(400).json({
                 message: error.message

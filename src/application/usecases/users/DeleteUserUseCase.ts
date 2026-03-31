@@ -26,7 +26,7 @@ export class DeleteUserUseCase{
             userData.name,
             userData.cpf,
             userData.email,
-            userData.password,
+            userData.password ?? "",
             userData.accountNumber
         )
 
@@ -34,7 +34,7 @@ export class DeleteUserUseCase{
 
         await this.accountRepository.deleteAccount(accountData.accountNumber);
 
-        await this.userRepository.deleteAccount(cpf);
+        await this.userRepository.delete(cpf);
 
         return {
             message: 'Usuario e Conta DELETADOS com SUCESSO! ✅'

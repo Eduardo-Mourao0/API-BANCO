@@ -10,11 +10,13 @@ export class ListUserController{
 
         try{
             
-            await this.listUsersUseCase.execute()
+            const users = await this.listUsersUseCase.execute()
 
             await Logger.info("Listar Usuarios", req.originalUrl);
 
-            return res.status(200).json({message: "Lista de Usuarios"})
+            return res.status(200).json({message: "Lista de Usuarios",
+                ListUsers: users
+            })
         
         }catch(error){
 

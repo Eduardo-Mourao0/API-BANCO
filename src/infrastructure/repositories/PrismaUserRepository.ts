@@ -1,25 +1,15 @@
-import { IUserRepository } from "../../domain/repositories/IUserRepository";
+import { IUserRepository, UserDTO } from "../../domain/repositories/IUserRepository";
+import { CreateUserDTO } from "../../application/dtos/CreateUserDTO";
 import { prisma } from "../database/prisma";
 
 export class PrismaUserRepository implements IUserRepository {
-    
-    async findByCpfOrEmail(cpf: string, email: string){
-        return prisma.user.findFirst({
-            where: {
-                OR: [
-                    {cpf},
-                    {email}
-                ]
-            }
-        });
-    }
 
-    async create(data:any){
+    async create(data: CreateUserDTO): Promise<UserDTO> {
+        const { id, name, cpf, email, password, accountNumber } = data;
 
-        const {name, cpf, email, password, accountNumber} = data;
-
-        return prisma.user.create({
+        const user = await prisma.user.create({
             data: {
+                id,
                 name,
                 cpf,
                 email,
@@ -30,59 +20,82 @@ export class PrismaUserRepository implements IUserRepository {
                         balance: 0
                     }
                 }
-            },
-            include: {
-                account: true
             }
         });
+
+        return {
+            id: user.id,
+            name: user.name,
+            cpf: user.cpf,
+            email: user.email,
+            password: user.password,
+            accountNumber
+        };
     }
 
-    async listUsers(){
-        return prisma.user.findMany({
+    async findAll(): Promise<UserDTO[]> {
+        const users = await prisma.user.findMany({
             select: {
                 id: true,
                 name: true,
                 cpf: true,
                 email: true,
-                createdAt: true,
-                
                 account: {
-                    select: {
-                        id: true,
-                        accountNumber: true,
-                        balance: true,
-                    }
+                    select: { accountNumber: true }
                 }
             }
         });
+
+        return users.map(user => ({
+            id: user.id,
+            name: user.name,
+            cpf: user.cpf,
+            email: user.email,
+            accountNumber: user.account!.accountNumber
+        }));
     }
 
-    async findAccount(accountNumber: string){
-        return prisma.account.findUnique({ 
-            where: { accountNumber },
-            include: {
-                user: true
-            }
-        });
-    }
-
-    async deleteAccount(accountNumber: string){
-
-        const account = await prisma.account.findUnique({
-            where: { accountNumber },
-            include: { user: true }
+    async findByCpf(cpf: string): Promise<UserDTO | null> {
+        const user = await prisma.user.findUnique({
+            where: { cpf },
+            include: { account: true }
         });
 
-        await prisma.$transaction([
-            prisma.account.delete({
-            where: { accountNumber }
-            }),
+        if (!user) return null;
 
-            prisma.user.delete({
-            where: { id: account!.user.id }
-            })
-        ]);
-
+        return {
+            id: user.id,
+            name: user.name,
+            cpf: user.cpf,
+            email: user.email,
+            password: user.password,
+            accountNumber: user.account!.accountNumber
+        };
     }
 
+    async findByCpfOrEmail(cpf: string, email: string): Promise<UserDTO | null> {
+        const user = await prisma.user.findFirst({
+            where: {
+                OR: [{ cpf }, { email }]
+            },
+            include: { account: true }
+        });
+
+        if (!user) return null;
+
+        return {
+            id: user.id,
+            name: user.name,
+            cpf: user.cpf,
+            email: user.email,
+            password: user.password,
+            accountNumber: user.account!.accountNumber
+        };
+    }
+
+    async delete(cpf: string): Promise<void> {
+        await prisma.user.delete({
+            where: { cpf }
+        });
+    }
 }

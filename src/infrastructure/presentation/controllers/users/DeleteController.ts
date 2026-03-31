@@ -5,13 +5,13 @@ import { BusinessError } from "../../../../domain/exceptions/BusinessError";
 
 export class DeleteController{
     constructor(private deleteUser: DeleteUserUseCase){}
-    async handle(req: Request<{ accountNumber: string }>, res: Response){
+    async handle(req: Request<{ cpf: string }>, res: Response){
 
-        const {accountNumber} = req.params;
+        const {cpf} = req.params;
 
         try{
 
-            await this.deleteUser.execute(accountNumber);
+            await this.deleteUser.execute(cpf);
 
             await Logger.info("Usuário Deletado", req.originalUrl);
 

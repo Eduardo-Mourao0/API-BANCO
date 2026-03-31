@@ -23,6 +23,7 @@ export class UserController{
             });
         
         }catch (error) {
+            
             console.log(error)
 
             await Logger.error(error, req.originalUrl);

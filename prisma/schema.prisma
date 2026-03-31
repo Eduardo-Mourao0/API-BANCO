@@ -18,14 +18,11 @@ model User {
 }
 
 model Account {
-  id            String  @id @default(uuid())
+  id            String  @id 
   accountNumber String  @unique
   balance       Decimal @default(0.00)
   userId        String  @unique
   user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  sentTransactions     Transaction[] @relation("SenderAccount")
-  receivedTransactions Transaction[] @relation("ReceiverAccount")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -37,19 +34,5 @@ model Log {
   message   String
   stack     String?
   route     String?
-  createdAt DateTime @default(now())
-}
-
-model Transaction {
-  id     String  @id @default(uuid())
-  type   String
-  amount Decimal
-
-  senderAccountId String?
-  senderAccount   Account? @relation("SenderAccount", fields: [senderAccountId], references: [id])
-
-  receiverAccountId String?
-  receiverAccount   Account? @relation("ReceiverAccount", fields: [receiverAccountId], references: [id])
-
   createdAt DateTime @default(now())
 }
