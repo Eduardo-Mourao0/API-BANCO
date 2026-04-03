@@ -1,61 +1,46 @@
-import { IUserRepository, UserDTO } from "../../domain/repositories/IUserRepository";
-import { CreateUserDTO } from "../../application/dtos/CreateUserDTO";
+import { IUserRepository} from "../../domain/repositories/IUserRepository";
 import { prisma } from "../database/prisma";
+import { User } from "../../domain/entities/User";
+import {v4 as uuidv4} from "uuid";
 
 export class PrismaUserRepository implements IUserRepository {
 
-    async create(data: CreateUserDTO): Promise<UserDTO> {
-        const { id, name, cpf, email, password, accountNumber } = data;
-
-        const user = await prisma.user.create({
-            data: {
-                id,
-                name,
-                cpf,
-                email,
-                password,
-                account: {
-                    create: {
-                        accountNumber,
-                        balance: 0
-                    }
-                }
-            }
-        });
-
-        return {
+    async create(user: User): Promise<void> {
+    await prisma.user.create({
+        data: {
             id: user.id,
             name: user.name,
             cpf: user.cpf,
             email: user.email,
             password: user.password,
-            accountNumber
-        };
-    }
-
-    async findAll(): Promise<UserDTO[]> {
-        const users = await prisma.user.findMany({
-            select: {
-                id: true,
-                name: true,
-                cpf: true,
-                email: true,
-                account: {
-                    select: { accountNumber: true }
+            account: {
+                create: {
+                    id: uuidv4(),
+                    accountNumber: user.accountNumber
                 }
             }
+        }
         });
+    }
 
-        return users.map(user => ({
+    async findAll(): Promise<User[]> {
+    const users = await prisma.user.findMany({
+        include: { account: true }
+    });
+
+    return users.map(user =>
+        User.createFromPrimitives({
             id: user.id,
             name: user.name,
             cpf: user.cpf,
             email: user.email,
+            password: user.password,
             accountNumber: user.account!.accountNumber
-        }));
-    }
+        })
+    );
+}
 
-    async findByCpf(cpf: string): Promise<UserDTO | null> {
+    async findByCpf(cpf: string): Promise<User | null> {
         const user = await prisma.user.findUnique({
             where: { cpf },
             include: { account: true }
@@ -63,17 +48,17 @@ export class PrismaUserRepository implements IUserRepository {
 
         if (!user) return null;
 
-        return {
-            id: user.id,
-            name: user.name,
-            cpf: user.cpf,
-            email: user.email,
-            password: user.password,
-            accountNumber: user.account!.accountNumber
-        };
+        return User.createFromPrimitives({
+        id: user.id,
+        name: user.name,
+        cpf: user.cpf,
+        email: user.email,
+        password: user.password,
+        accountNumber: user.account!.accountNumber
+    });
     }
 
-    async findByCpfOrEmail(cpf: string, email: string): Promise<UserDTO | null> {
+    async findByCpfOrEmail(cpf: string, email: string): Promise<User | null> {
         const user = await prisma.user.findFirst({
             where: {
                 OR: [{ cpf }, { email }]
@@ -83,17 +68,17 @@ export class PrismaUserRepository implements IUserRepository {
 
         if (!user) return null;
 
-        return {
+        return User.createFromPrimitives({
             id: user.id,
             name: user.name,
             cpf: user.cpf,
             email: user.email,
             password: user.password,
             accountNumber: user.account!.accountNumber
-        };
+        });
     }
 
-    async delete(cpf: string): Promise<void> {
+     async delete(cpf: string): Promise<void> {
         await prisma.user.delete({
             where: { cpf }
         });

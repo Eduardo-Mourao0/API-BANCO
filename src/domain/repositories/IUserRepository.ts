@@ -1,5 +1,5 @@
-import { CreateUserDTO } from "../../application/dtos/CreateUserDTO";
-import { AccountDTO } from "../../application/dtos/AccountDTO";
+import { User } from "../entities/User";
+import { Account } from "../entities/Account";
 
 export interface UserDTO{
     id: string;
@@ -12,13 +12,13 @@ export interface UserDTO{
 
 export interface IUserRepository {
     
-    findByCpfOrEmail(cpf: string, email: string): Promise<UserDTO | null>;
+    findByCpfOrEmail(cpf: string, email: string): Promise<User | null>;
 
-    findByCpf(cpf: string): Promise<UserDTO | null>;
+    findByCpf(cpf: string): Promise<User | null>;
     
-    create(userData: CreateUserDTO): Promise<UserDTO>;
+    create(user: User): Promise<void>;
 
-    findAll(): Promise<UserDTO[]>;
+    findAll(): Promise<User[]>;
 
     delete(cpf: string): Promise<void>;
 }

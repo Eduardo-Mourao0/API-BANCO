@@ -54,4 +54,14 @@ export class Account{
         this._balance -= amount;
         target._balance += amount;
     }
+
+    static create(accountNumber: string, balance: number): Account {
+        const account = new Account(accountNumber, balance);
+        return account;
+    }
+
+    static createFromPrimitives(data: { accountNumber: string; balance: number }): Account {
+        const { accountNumber, balance } = data;
+        return new Account(accountNumber, balance);
+    }
 }

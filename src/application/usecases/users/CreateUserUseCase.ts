@@ -3,9 +3,15 @@ import { User } from "../../../domain/entities/User";
 import { BusinessError } from "../../../domain/exceptions/BusinessError";
 import { CreateUserDTO } from "../../dtos/CreateUserDTO";
 import { v4 as uuidv4 } from "uuid";
+import { IAccountRepository } from "../../../domain/repositories/IAccountRepository";
+import { IPasswordHasher } from "../../../domain/services/IPasswordHasher";
 
 export class CreateUserUseCase {
-    constructor(private userRepository: IUserRepository) {}
+    constructor(
+        private userRepository: IUserRepository,
+        private accountRepository: IAccountRepository,
+        private passwordHasher: IPasswordHasher
+    ) {}
 
     async execute(data: CreateUserDTO) {
         const { name, cpf, email, password } = data;
@@ -19,18 +25,11 @@ export class CreateUserUseCase {
         const id = uuidv4();
         const accountNumber = await this.generateAccountNumber();
 
-        const user = new User(name, cpf, email, password, accountNumber);
+        const hashedPassword = await this.passwordHasher.hash(password);
 
-        await user.hashPassword();
+        const user = User.create(id, name, cpf, email, hashedPassword, accountNumber);
 
-        await this.userRepository.create({
-            id,
-            name: user.name,
-            cpf: user.cpf,
-            email: user.email,
-            password: user.password,
-            accountNumber: user.accountNumber
-        });
+        await this.userRepository.create(user);
 
         return {
             id,
@@ -44,7 +43,7 @@ export class CreateUserUseCase {
     private async generateAccountNumber(): Promise<string> {
         for (let attempts = 0; attempts < 10; attempts++) {
             const accountNumber = Math.floor(10000 + Math.random() * 90000).toString();
-            const exists = await this.userRepository.findByCpfOrEmail(accountNumber, accountNumber);
+            const exists = await this.accountRepository.findAccount(accountNumber);
 
             if (!exists) return accountNumber;
         }

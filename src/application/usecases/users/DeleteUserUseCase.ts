@@ -10,29 +10,19 @@ export class DeleteUserUseCase{
     
     async execute(cpf: string){
         
-        const userData = await this.userRepository.findByCpf(cpf);
+        const user = await this.userRepository.findByCpf(cpf);
 
-        if(!userData){
+        if(!user){
             throw new BusinessError('Usuario não encontrado!')
         }
         
-        const accountData = await this.accountRepository.findAccount(userData.accountNumber);
+        const accountData = await this.accountRepository.findAccount(user.accountNumber);
 
         if(!accountData){
             throw new BusinessError("Conta do usuario nao encontrada!")
         }
 
-        const user = new User(
-            userData.name,
-            userData.cpf,
-            userData.email,
-            userData.password ?? "",
-            userData.accountNumber
-        )
-
         user.canDelete(accountData.balance);
-
-        await this.accountRepository.deleteAccount(accountData.accountNumber);
 
         await this.userRepository.delete(cpf);
 

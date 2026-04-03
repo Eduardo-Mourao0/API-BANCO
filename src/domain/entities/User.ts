@@ -2,7 +2,8 @@ import { BusinessError } from "../exceptions/BusinessError";
 import * as bcrypt from "bcrypt";
 
 export class User{
-    constructor(
+    private constructor(
+        public readonly id: string,
         public readonly name: string,
         public readonly cpf: string,
         public readonly email: string,
@@ -56,5 +57,15 @@ export class User{
         if (balance > 0) {
             throw new BusinessError("Não é possível excluir uma conta com saldo.");
         }
+    }
+
+    static create(id: string, name: string, cpf: string, email: string, password: string, accountNumber: string): User {
+        const user = new User(id, name, cpf, email, password, accountNumber);
+        return user;
+    }
+
+    static createFromPrimitives(data: { id: string; name: string; cpf: string; email: string; password: string; accountNumber: string }): User {
+        const { id, name, cpf, email, password, accountNumber } = data;
+        return new User(id, name, cpf, email, password, accountNumber);
     }
 }

@@ -1,20 +1,20 @@
 import { IAccountRepository } from "../../domain/repositories/IAccountRepository";
-import { AccountDTO } from "../../application/dtos/AccountDTO";
 import { prisma } from "../database/prisma";
+import { Account } from "../../domain/entities/Account";
  
 export class PrismaAccountRepository implements IAccountRepository {
  
-    async findAccount(accountNumber: string): Promise<AccountDTO | null> {
+    async findAccount(accountNumber: string): Promise<Account | null> {
         const account = await prisma.account.findUnique({
             where: { accountNumber }
         });
  
         if (!account) return null;
  
-        return {
+        return Account.createFromPrimitives({
             accountNumber: account.accountNumber,
             balance: account.balance.toNumber()
-        };
+        });
     }
  
     async deleteAccount(accountNumber: string): Promise<void> {
