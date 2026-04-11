@@ -1,32 +1,22 @@
-import { ITransactionRepository } from "../../../domain/repositories/ITransactionRepository";
 import { Account } from "../../../domain/entities/Account";
 import { BusinessError } from "../../../domain/exceptions/BusinessError";
+import { ITransactionManager } from "../../../domain/managers/ITransactionManager";
+import { IAccountRepository } from "../../../domain/repositories/IAccountRepository";
 
 export class WithdrawUseCase{
-    constructor(private transactionRepository: ITransactionRepository){}
-    
+    constructor(
+        private transactionManager: ITransactionManager,
+        private accountRepository: IAccountRepository
+    ){}
+
     async execute(accountNumber: string, amount: number){
 
-        const accountData = await this.transactionRepository.findAccount(accountNumber);
+        const account = await this.accountRepository.findAccount(accountNumber);
 
-        if(!accountData) throw new BusinessError("Conta nao encontrada!");
-
-        const account = new Account(
-            accountData.accountNumber,
-            accountData.balance
-        );
+        if(!account) throw new BusinessError("Conta nao encontrada!");
 
         account.withdraw(amount);
        
-        await this.transactionRepository.updateBalance(accountNumber, account.balance);
-
-        await this.transactionRepository.saveTransaction(accountNumber, "WITHDRAW", amount);
-
-        return {
-            accountNumber: account.accountNumber,
-            amount,
-            balance: account.balance,
-            date: new Date()
-        };
+        return this.transactionManager.withdraw(account, amount)
     }
 }

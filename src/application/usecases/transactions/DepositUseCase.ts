@@ -1,37 +1,21 @@
-import { ITransactionRepository } from "../../../domain/repositories/ITransactionRepository";
 import { Account } from "../../../domain/entities/Account";
 import { BusinessError } from "../../../domain/exceptions/BusinessError";
+import { ITransactionManager } from "../../../domain/managers/ITransactionManager";
+import { IAccountRepository } from "../../../domain/repositories/IAccountRepository";
 
 export class DepositUseCase{
-    constructor(private transactionRepository: ITransactionRepository){}
+    constructor(
+        private transactionManager: ITransactionManager,
+        private accountRepository: IAccountRepository
+    ){}
 
     async execute(accountNumber: string, amount: number){
 
-        const accountData = await this.transactionRepository.findAccount(accountNumber);
-
-        if(!accountData){
-            throw new BusinessError("Conta NAO encontrada.")
-        }
-
-        const account = new Account(
-            accountData.accountNumber,
-            accountData.balance
-        );
+        const account = await this.accountRepository.findAccount(accountNumber);
+        if(!account) throw new BusinessError("Conta não encontrada.");
 
         account.deposit(amount);
-
-        await this.transactionRepository.updateBalance(
-            account.accountNumber, 
-            account.balance
-        );
-
-        await this.transactionRepository.saveTransaction(accountData.accountNumber, "DEPOSIT", amount);
-
-        return {
-            accountNumber: account.accountNumber,
-            amount,
-            balance: account.balance,
-            date: new Date()
-        }
+        
+        return this.transactionManager.deposit(account, amount);
     }
 }
