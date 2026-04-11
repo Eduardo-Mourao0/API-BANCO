@@ -38,7 +38,7 @@ export class PrismaUserRepository implements IUserRepository {
             accountNumber: user.account!.accountNumber
         })
     );
-}
+    }
 
     async findByCpf(cpf: string): Promise<User | null> {
         const user = await prisma.user.findUnique({

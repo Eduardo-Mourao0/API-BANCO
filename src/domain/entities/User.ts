@@ -1,7 +1,6 @@
 import { BusinessError } from "../exceptions/BusinessError";
-import * as bcrypt from "bcrypt";
 
-export class User{
+export class User {
     private constructor(
         public readonly id: string,
         public readonly name: string,
@@ -9,17 +8,14 @@ export class User{
         public readonly email: string,
         private _password: string,
         public readonly accountNumber: string
-    ){
-        this.validate();
-    }
+    ) {}
 
     get password(): string {
-        return this._password
+        return this._password;
     }
 
-    private validate(){
-        
-        if(!this.name){
+    private validate() {
+        if (!this.name) {
             throw new BusinessError("Nome e obrigatorio.");
         }
 
@@ -27,8 +23,8 @@ export class User{
             throw new BusinessError("CPF inválido.");
         }
 
-        if(!this._password){
-            throw new BusinessError("Senha e obrigatorio")
+        if (!this._password) {
+            throw new BusinessError("Senha e obrigatorio");
         }
 
         if (!this.isValidEmail(this.email)) {
@@ -40,17 +36,13 @@ export class User{
         }
     }
 
-    private isValidCpf(cpf: string): boolean{
+    private isValidCpf(cpf: string): boolean {
         const cleaned = cpf.replace(/\D/g, "");
         return cleaned.length === 11;
     }
 
     private isValidEmail(email: string): boolean {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    async hashPassword(): Promise<void> {
-        this._password = await bcrypt.hash(this._password, 10);
     }
 
     canDelete(balance: number): void {
@@ -61,10 +53,18 @@ export class User{
 
     static create(id: string, name: string, cpf: string, email: string, password: string, accountNumber: string): User {
         const user = new User(id, name, cpf, email, password, accountNumber);
+        user.validate();
         return user;
     }
 
-    static createFromPrimitives(data: { id: string; name: string; cpf: string; email: string; password: string; accountNumber: string }): User {
+    static createFromPrimitives(data: {
+        id: string;
+        name: string;
+        cpf: string;
+        email: string;
+        password: string;
+        accountNumber: string;
+    }): User {
         const { id, name, cpf, email, password, accountNumber } = data;
         return new User(id, name, cpf, email, password, accountNumber);
     }

@@ -5,9 +5,11 @@ export class Account{
         public readonly accountNumber: string, 
         private _balance: number) {
     }
+    
     get balance(): number{
         return this._balance;
     }
+    
     static create(accountNumber: string, balance: number): Account {
 
         if(!accountNumber) throw new BusinessError("Numero da conta é obrigatorio");
@@ -16,10 +18,12 @@ export class Account{
 
         return new Account(accountNumber, balance);
     }
+    
     static createFromPrimitives(data: { accountNumber: string; balance: number }): Account {
         const { accountNumber, balance } = data;
         return new Account(accountNumber, balance);
     }
+    
     deposit(amount: number) {
         
         if(amount <= 0){
@@ -28,6 +32,7 @@ export class Account{
 
         this._balance += amount;
     }
+    
     withdraw(amount: number) {
     
         if (amount <= 0) {
@@ -40,6 +45,7 @@ export class Account{
 
         this._balance -= amount;
     }
+    
     transfer(amount: number, target: Account) {
         
         if (amount <= 0) {
