@@ -7,8 +7,12 @@ import { PrismaTransactionRepository } from "../repositories/PrismaTransactionRe
 export function makeWithdrawController(): WithdrawController {
     const accountRepository = new PrismaAccountRepository();
     const transactionRepository = new PrismaTransactionRepository();
-    const transactionManager = new PrismaTransactionManager(accountRepository, transactionRepository);
-    const withdrawUseCase = new WithdrawUseCase(transactionManager, accountRepository);
+    const transactionManager = new PrismaTransactionManager();
+    const withdrawUseCase = new WithdrawUseCase(
+        transactionManager,
+        accountRepository,
+        transactionRepository
+    );
 
     return new WithdrawController(withdrawUseCase);
 }

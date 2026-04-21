@@ -7,8 +7,12 @@ import { PrismaTransactionRepository } from "../repositories/PrismaTransactionRe
 export function makeTransferController(): TransferController {
     const accountRepository = new PrismaAccountRepository();
     const transactionRepository = new PrismaTransactionRepository();
-    const transactionManager = new PrismaTransactionManager(accountRepository, transactionRepository);
-    const transferUseCase = new TransferUseCase(transactionManager, accountRepository);
+    const transactionManager = new PrismaTransactionManager();
+    const transferUseCase = new TransferUseCase(
+        transactionManager,
+        accountRepository,
+        transactionRepository
+    );
 
     return new TransferController(transferUseCase);
 }

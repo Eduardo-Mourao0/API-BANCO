@@ -8,8 +8,12 @@ export function makeDepositController(): DepositController {
     
     const accountRepository = new PrismaAccountRepository();
     const transactionRepository = new PrismaTransactionRepository();
-    const transactionManager = new PrismaTransactionManager(accountRepository, transactionRepository);
-    const depositUseCase = new DepositUseCase(transactionManager, accountRepository);
+    const transactionManager = new PrismaTransactionManager();
+    const depositUseCase = new DepositUseCase(
+        transactionManager,
+        accountRepository,
+        transactionRepository
+    );
 
     return new DepositController(depositUseCase);
 }

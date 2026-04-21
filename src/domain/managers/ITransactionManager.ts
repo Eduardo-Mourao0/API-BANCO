@@ -1,24 +1,19 @@
-import { Account } from "../entities/Account";
+import type { Prisma, PrismaClient } from "@prisma/client";
+
+export type PrismaTransactionClient = Omit<
+    PrismaClient,
+    "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends"
+>;
+
+export type TransactionCallback<T> = (tx: PrismaTransactionClient) => Promise<T>;
+
+interface Config {
+    timeout?: number;
+    isolationLevel?: Prisma.TransactionIsolationLevel;
+}
 
 export interface ITransactionManager {
-    deposit(account: Account, amount: number): Promise<{
-        accountNumber: string;
-        amount: number;
-        balance: number;
-        date: Date;
-    }>;
-
-    withdraw(account: Account, amount: number): Promise<{
-        accountNumber: string;
-        amount: number;
-        balance: number;
-        date: Date;
-    }>;
-
-    transfer(fromAccount: Account, toAccount: Account, amount: number): Promise<{
-        fromAccount: string;
-        toAccount: string;
-        amount: number;
-        date: Date;
-    }>;
+    execute<T>(action: TransactionCallback<T>, timeout?: number): Promise<T>;
 }
+
+export type TransactionManagerConfig = Config;

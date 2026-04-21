@@ -1,18 +1,24 @@
 import { ITransactionRepository } from "../../domain/repositories/ITransactionRepository";
 import { Transaction, TransactionType } from "../../domain/entities/Transaction";
 import { prisma } from "../database/prisma";
+import { PrismaTransactionClient } from "../../domain/managers/ITransactionManager";
 
 export class PrismaTransactionRepository implements ITransactionRepository {
 
-    async save(accountNumber: string, type: TransactionType, amount: number): Promise<void> {
-        const account = await prisma.account.findUnique({
+    async save(
+        accountNumber: string,
+        type: TransactionType,
+        amount: number,
+        tx: PrismaTransactionClient = prisma
+    ): Promise<void> {
+        const account = await tx.account.findUnique({
             where: { accountNumber },
             select: { id: true }
         });
 
         if (!account) return;
 
-        await prisma.transaction.create({
+        await tx.transaction.create({
             data: { accountId: account.id, type, amount }
         });
     }

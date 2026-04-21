@@ -1,6 +1,7 @@
 import { IAccountRepository } from "../../domain/repositories/IAccountRepository";
 import { prisma } from "../database/prisma";
 import { Account } from "../../domain/entities/Account";
+import { PrismaTransactionClient } from "../../domain/managers/ITransactionManager";
 
 export class PrismaAccountRepository implements IAccountRepository {
 
@@ -17,8 +18,12 @@ export class PrismaAccountRepository implements IAccountRepository {
         });
     }
 
-    async updateBalance(accountNumber: string, balance: number): Promise<void> {
-        await prisma.account.update({
+    async updateBalance(
+        accountNumber: string,
+        balance: number,
+        tx: PrismaTransactionClient = prisma
+    ): Promise<void> {
+        await tx.account.update({
             where: { accountNumber },
             data: { balance }
         });

@@ -2,40 +2,35 @@ import { type Request, type Response } from "express";
 import { TransferUseCase } from "../../../../application/usecases/transactions/TransferUseCase";
 import { Logger } from "../../../../utils/Logger";
 import { BusinessError } from "../../../../domain/exceptions/BusinessError";
-export class TransferController{
-    constructor(private transferUseCase: TransferUseCase){}
 
-    async handle(req: Request, res: Response){
+export class TransferController {
+    constructor(private transferUseCase: TransferUseCase) {}
 
-        try{
-
-            const {fromAccount, toAccount, amount} = req.body;
+    async handle(req: Request, res: Response) {
+        try {
+            const { fromAccount, toAccount, amount } = req.body;
         
-            const receipt = await this.transferUseCase.execute(
+            const account = await this.transferUseCase.execute(
                 fromAccount,
                 toAccount,
                 amount
             );
 
-            await Logger.info("Transferência realizada", req.originalUrl);
+            await Logger.info("Transferencia realizada", req.originalUrl);
 
             return res.status(200).json({
-                message: 'Transferencia Efetuada com SUCESSO! ✅',
-                receipt: {
-                    fromAccount: receipt.fromAccount,
-                    toAccount: receipt.toAccount,
-                    amount: receipt.amount,
-                    date: receipt.date
+                message: "Transferencia Efetuada com SUCESSO!",
+                account: {
+                    accountNumber: account.accountNumber,
+                    balance: account.balance
                 }
-            })
-        
-        }catch(error){
-            
+            });
+        } catch (error) {
             await Logger.error(error, req.originalUrl);
             
             if (error instanceof BusinessError) {
                 return res.status(400).json({
-                message: error.message
+                    message: error.message
                 });
             }
 
