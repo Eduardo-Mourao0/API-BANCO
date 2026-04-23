@@ -58,7 +58,7 @@ export class PrismaUserRepository implements IUserRepository {
     });
     }
 
-    async findByCpfOrEmail(cpf: string, email: string): Promise<User | null> {
+    async findByCpfOrEmail(cpf?: string, email?: string): Promise<User | null> {
         const user = await prisma.user.findFirst({
             where: {
                 OR: [{ cpf }, { email }]

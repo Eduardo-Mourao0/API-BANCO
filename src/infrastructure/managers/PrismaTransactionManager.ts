@@ -18,8 +18,7 @@ export class PrismaTransactionManager implements ITransactionManager {
         action: TransactionCallback<T>,
         timeout?: number
     ): Promise<T> {
-        const result = await this.transactionClient.$transaction(
-            (tx) => action(tx as PrismaTransactionClient),
+        const result = await this.transactionClient.$transaction((tx) => action(tx as PrismaTransactionClient),
             {
                 ...this.config,
                 timeout: timeout ?? this.config.timeout
