@@ -40,6 +40,24 @@ export class PrismaUserRepository implements IUserRepository {
     );
     }
 
+    async findById(id: string): Promise<User | null> {
+        const user = await prisma.user.findUnique({
+            where: { id },
+            include: { account: true }
+        });
+
+        if (!user) return null;
+
+        return User.createFromPrimitives({
+            id: user.id,
+            name: user.name,
+            cpf: user.cpf,
+            email: user.email,
+            password: user.password,
+            accountNumber: user.account!.accountNumber
+        });
+    }
+
     async findByCpf(cpf: string): Promise<User | null> {
         const user = await prisma.user.findUnique({
             where: { cpf },
@@ -58,7 +76,7 @@ export class PrismaUserRepository implements IUserRepository {
     });
     }
 
-    async findByCpfOrEmail(cpf: string, email: string): Promise<User | null> {
+    async findByCpfOrEmail(cpf?: string, email?: string): Promise<User | null> {
         const user = await prisma.user.findFirst({
             where: {
                 OR: [{ cpf }, { email }]

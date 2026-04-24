@@ -1,19 +1,17 @@
 import { Request, Response } from "express";
 import { WithdrawUseCase } from "../../../../application/usecases/transactions/WithdrawUseCase";
-import { Logger } from "../../../../utils/Logger";
+import { AuthorizationError } from "../../../../domain/exceptions/AuthorizationError";
 import { BusinessError } from "../../../../domain/exceptions/BusinessError";
+import { Logger } from "../../../../utils/Logger";
 
 export class WithdrawController {
-    constructor(private withdrawUseCase: WithdrawUseCase) {}
-    
+    constructor(private readonly withdrawUseCase: WithdrawUseCase) {}
+
     async handle(req: Request, res: Response) {
         try {
-            const { accountNumber, amount } = req.body;
+            const { amount } = req.body;
 
-            const account = await this.withdrawUseCase.execute(
-                accountNumber,
-                amount
-            );
+            const account = await this.withdrawUseCase.execute(req.userId, amount);
 
             await Logger.info("Saque Efetuado com Sucesso", req.originalUrl);
 
@@ -26,7 +24,13 @@ export class WithdrawController {
             });
         } catch (error) {
             await Logger.error(error, req.originalUrl);
-            
+
+            if (error instanceof AuthorizationError) {
+                return res.status(403).json({
+                    error: error.message
+                });
+            }
+
             if (error instanceof BusinessError) {
                 return res.status(400).json({
                     error: error.message

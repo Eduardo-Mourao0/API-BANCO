@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import { router } from "./routes";
 
@@ -10,5 +11,5 @@ app.use(router);
 const PORT = 3000;
 
 app.listen(PORT, () => {
-  console.log(`Servidor ON na porta http://localhost:${PORT} 🚀`);
+  console.log(`Servidor ON na porta http://localhost:${PORT}`);
 });

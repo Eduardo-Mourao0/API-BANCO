@@ -1,33 +1,37 @@
-import { IUserRepository } from "../../../domain/repositories/IUserRepository";
-import { User } from "../../../domain/entities/User";
+import { AuthorizationError } from "../../../domain/exceptions/AuthorizationError";
 import { BusinessError } from "../../../domain/exceptions/BusinessError";
 import { IAccountRepository } from "../../../domain/repositories/IAccountRepository";
-export class DeleteUserUseCase{
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+
+export class DeleteUserUseCase {
     constructor(
-        private userRepository: IUserRepository,
-        private accountRepository: IAccountRepository
-    ){}
-    
-    async execute(cpf: string){
-        
-        const user = await this.userRepository.findByCpf(cpf);
+        private readonly userRepository: IUserRepository,
+        private readonly accountRepository: IAccountRepository
+    ) {}
 
-        if(!user){
-            throw new BusinessError('Usuario não encontrado!')
-        }
-        
-        const accountData = await this.accountRepository.findAccount(user.accountNumber);
-
-        if(!accountData){
-            throw new BusinessError("Conta do usuario nao encontrada!")
+    async execute(authenticatedUserId: string | undefined) {
+        if (!authenticatedUserId) {
+            throw new AuthorizationError("Usuario nao autenticado.");
         }
 
-        user.canDelete(accountData.balance);
+        const authenticatedUser = await this.userRepository.findById(authenticatedUserId);
 
-        await this.userRepository.delete(cpf);
+        if (!authenticatedUser) {
+            throw new BusinessError("Usuario nao encontrado.");
+        }
+
+        const accountData = await this.accountRepository.findAccount(authenticatedUser.accountNumber);
+
+        if (!accountData) {
+            throw new BusinessError("Conta do usuario nao encontrada!");
+        }
+
+        authenticatedUser.canDelete(accountData.balance);
+
+        await this.userRepository.delete(authenticatedUser.cpf);
 
         return {
-            message: 'Usuario e Conta DELETADOS com SUCESSO! ✅'
+            message: "Usuario e conta deletados com sucesso."
         };
     }
 }

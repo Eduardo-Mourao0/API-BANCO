@@ -12,7 +12,7 @@ export interface UserDTO{
 
 export interface IUserRepository {
     
-    findByCpfOrEmail(cpf: string, email: string): Promise<User | null>;
+    findByCpfOrEmail(cpf?: string, email?: string): Promise<User | null>;
 
     findByCpf(cpf: string): Promise<User | null>;
     
@@ -21,4 +21,6 @@ export interface IUserRepository {
     findAll(): Promise<User[]>;
 
     delete(cpf: string): Promise<void>;
+
+    findById(id: string): Promise<User | null>;
 }

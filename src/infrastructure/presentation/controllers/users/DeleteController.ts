@@ -1,34 +1,36 @@
 import { type Request, type Response } from "express";
 import { DeleteUserUseCase } from "../../../../application/usecases/users/DeleteUserUseCase";
-import { Logger } from "../../../../utils/Logger";
+import { AuthorizationError } from "../../../../domain/exceptions/AuthorizationError";
 import { BusinessError } from "../../../../domain/exceptions/BusinessError";
+import { Logger } from "../../../../utils/Logger";
 
-export class DeleteController{
-    constructor(private deleteUser: DeleteUserUseCase){}
-    async handle(req: Request<{ cpf: string }>, res: Response){
+export class DeleteController {
+    constructor(private readonly deleteUser: DeleteUserUseCase) {}
 
-        const {cpf} = req.params;
+    async handle(req: Request, res: Response) {
+        try {
+            await this.deleteUser.execute(req.userId);
 
-        try{
+            await Logger.info("Usuario Deletado", req.originalUrl);
 
-            await this.deleteUser.execute(cpf);
-
-            await Logger.info("Usuário Deletado", req.originalUrl);
-
-            return res.status(200).json({message: "Usuário Deletado com Sucesso"})
-        
-        }catch(error){
-
+            return res.status(200).json({ message: "Usuario Deletado com Sucesso" });
+        } catch (error) {
             await Logger.error(error, req.originalUrl);
-            
-            if(error instanceof BusinessError){
+
+            if (error instanceof AuthorizationError) {
+                return res.status(403).json({
+                    error: error.message
+                });
+            }
+
+            if (error instanceof BusinessError) {
                 return res.status(400).json({
                     error: error.message
                 });
             }
 
             return res.status(500).json({
-                error: 'Erro Interno.'
+                error: "Erro Interno."
             });
         }
     }
