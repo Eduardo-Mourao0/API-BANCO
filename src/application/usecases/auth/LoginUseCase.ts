@@ -1,3 +1,4 @@
+import { AuthenticationError } from "../../../domain/exceptions/AuthenticationError";
 import { IUserRepository } from "../../../domain/repositories/IUserRepository";
 import { IPasswordHasher } from "../../../domain/services/IPasswordHasher";
 import { IJwtService } from "../../../domain/services/IJwtService";
@@ -14,13 +15,13 @@ export class LoginUseCase {
         const user = await this.userRepository.findByCpfOrEmail(undefined, dto.email);
 
         if (!user) {
-            throw new Error("Credenciais inválidas");
+            throw new AuthenticationError("Credenciais invalidas");
         }
 
         const isValid = await this.passwordHasher.compare(dto.password, user.password);
 
         if (!isValid) {
-            throw new Error("Credenciais inválidas");
+            throw new AuthenticationError("Credenciais invalidas");
         }
 
         const token = this.jwtService.sign({ userId: user.id });

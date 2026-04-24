@@ -1,18 +1,19 @@
 import { type Request, type Response } from "express";
 import { TransferUseCase } from "../../../../application/usecases/transactions/TransferUseCase";
-import { Logger } from "../../../../utils/Logger";
+import { AuthorizationError } from "../../../../domain/exceptions/AuthorizationError";
 import { BusinessError } from "../../../../domain/exceptions/BusinessError";
+import { Logger } from "../../../../utils/Logger";
 
 export class TransferController {
-    constructor(private transferUseCase: TransferUseCase) {}
+    constructor(private readonly transferUseCase: TransferUseCase) {}
 
     async handle(req: Request, res: Response) {
         try {
-            const { fromAccount, toAccount, amount } = req.body;
-        
+            const { toAccountNumber, amount } = req.body;
+
             const account = await this.transferUseCase.execute(
-                fromAccount,
-                toAccount,
+                req.userId,
+                toAccountNumber,
                 amount
             );
 
@@ -27,7 +28,13 @@ export class TransferController {
             });
         } catch (error) {
             await Logger.error(error, req.originalUrl);
-            
+
+            if (error instanceof AuthorizationError) {
+                return res.status(403).json({
+                    message: error.message
+                });
+            }
+
             if (error instanceof BusinessError) {
                 return res.status(400).json({
                     message: error.message

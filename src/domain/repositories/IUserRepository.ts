@@ -21,4 +21,6 @@ export interface IUserRepository {
     findAll(): Promise<User[]>;
 
     delete(cpf: string): Promise<void>;
+
+    findById(id: string): Promise<User | null>;
 }
