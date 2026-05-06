@@ -38,10 +38,32 @@ model Transaction {
   createdAt DateTime        @default(now())
 }
 
+model IdempotencyRequest {
+  id           String             @id @default(uuid())
+  key          String
+  route        String
+  method       String
+  requestHash  String
+  status       IdempotencyStatus  @default(PENDING)
+  responseCode Int?
+  responseBody Json?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  expiresAt    DateTime
+
+  @@unique([key, route, method])
+  @@index([expiresAt])
+}
+
 enum TransactionType {
   DEPOSIT
   WITHDRAW
   TRANSFER
+}
+
+enum IdempotencyStatus {
+  PENDING
+  COMPLETED
 }
 
 model Log {

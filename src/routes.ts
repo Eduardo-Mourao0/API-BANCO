@@ -9,6 +9,7 @@ import { makeTransferController } from "./infrastructure/factories/makeTransferC
 import { makeGetExtractController } from "./infrastructure/factories/makeGetExtractController";
 import { makeAuthController } from "./infrastructure/factories/AuthControllerFactory";
 import { authMiddleware } from "./infrastructure/presentation/middlewares/AuthMiddleware";
+import { idempotencyMiddleware } from "./infrastructure/presentation/middlewares/IdempotencyMiddleware";
 
 const router = Router();
 
@@ -21,9 +22,9 @@ router.get("/users", authMiddleware, (req, res) => makeListUsersController().han
 router.delete("/users/me", authMiddleware, (req, res) => makeDeleteUserController().handle(req, res));
 
 // Transactions
-router.post("/user/deposit/me", authMiddleware, (req, res) => makeDepositController().handle(req, res));
-router.post("/user/withdraw/me", authMiddleware, (req, res) => makeWithdrawController().handle(req, res));
-router.post("/user/transfer/me", authMiddleware, (req, res) => makeTransferController().handle(req, res));
+router.post("/user/deposit/me", authMiddleware, idempotencyMiddleware, (req, res) => makeDepositController().handle(req, res));
+router.post("/user/withdraw/me", authMiddleware, idempotencyMiddleware, (req, res) => makeWithdrawController().handle(req, res));
+router.post("/user/transfer/me", authMiddleware, idempotencyMiddleware, (req, res) => makeTransferController().handle(req, res));
 router.get("/user/extract/me", authMiddleware, (req, res) => makeGetExtractController().handle(req, res));
 
 export { router };
